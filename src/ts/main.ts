@@ -5,3 +5,4 @@ interface CourseInfo {
     progression: 'A'| 'B'| 'C'; // Begränsad till 'A', 'B' eller 'C' 
     syllabus: string; 
 } 
+console.log("Hello från watch!");
