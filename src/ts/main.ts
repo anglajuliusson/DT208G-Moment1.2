@@ -1,11 +1,11 @@
 // Interface som definierar strukturen för en kurs 
 interface CourseInfo { 
     code: string; 
-    name: string; 
+    coursename: string; 
     progression: 'A'| 'B'| 'C'; // Begränsad till 'A', 'B' eller 'C' 
     syllabus: string; 
 } 
-console.log("Test");
+console.log("Testar");
 
 class CourseManager {
     private courses: CourseInfo[] = [];
@@ -42,7 +42,7 @@ class CourseManager {
     private isValidCourse(course: any): course is CourseInfo {
         console.log(course);  // Logga varje kursobjekt för att undersöka
         return typeof course.code === 'string' &&
-            typeof course.name === 'string' &&  // Kontrollera om det är 'name' eller 'coursename'
+            typeof course.coursename === 'string' &&  // Kontrollera om det är 'name' eller 'coursename'
             this.isValidProgression(course.progression) &&
             typeof course.syllabus === 'string';
     }
@@ -51,7 +51,7 @@ class CourseManager {
     private isValidProgression(value: string): value is 'A' | 'B' | 'C' {
         return value === 'A' || value === 'B' || value === 'C';
     }
-}
+} 
 
 // Skapa en instans av CourseManager och ladda kurser vid sidladdning
 window.addEventListener("load", async () => {
