@@ -30,6 +30,7 @@ class CourseManager {
                 // Spara kurser till localStorage
                 localStorage.setItem('courses', JSON.stringify(this.courses));
                 console.log("Kursdata sparades till localStorage");
+                this.renderCourses(); // Uppdatera tabellen med de nya kurserna
             } else {
                 console.error("Felaktig kursdata i JSON-filen");
             }
@@ -51,10 +52,33 @@ class CourseManager {
     private isValidProgression(value: string): value is 'A' | 'B' | 'C' {
         return value === 'A' || value === 'B' || value === 'C';
     }
-} 
+
+    // Skriv ut kursinformation i tabellen
+    private renderCourses(): void {
+        const courseTable = document.querySelector('.coursetable') as HTMLTableSectionElement;
+        courseTable.innerHTML = '';
+
+        this.courses.forEach(course => {
+        const row = courseTable.insertRow();
+        row.innerHTML = `
+            <td>${course.code}</td>
+            <td>${course.coursename}</td>
+            <td>${course.progression}</td>
+            <td><a href=${course.syllabus}>${course.syllabus}</a></td>
+        `;
+        });
+    }};
 
 // Skapa en instans av CourseManager och ladda kurser vid sidladdning
 window.addEventListener("load", async () => {
     const courseManager = new CourseManager();
+
+    // Ladda kurserna från localstore
+    const storedCourses = localStorage.getItem('courses');
+    if (storedCourses) {
+        courseManager['courses'] = JSON.parse(storedCourses);
+        courseManager['renderCourses']();
+    } else {
     await courseManager.loadAndSaveCourses();
+    }
 });
