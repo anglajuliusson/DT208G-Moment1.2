@@ -5,10 +5,21 @@ interface CourseInfo {
     progression: 'A'| 'B'| 'C'; // Begränsad till 'A', 'B' eller 'C' 
     syllabus: string; 
 } 
-console.log("Testar");
 
 class CourseManager {
     private courses: CourseInfo[] = [];
+
+    private saveCoursesToLocalStorage():void {
+        localStorage.setItem('courses', JSON.stringify(this.courses));
+    }
+
+    public loadCoursesFromLocalStorage(): void {
+        const storedCourses = localStorage.getItem('courses');
+        if (storedCourses) {
+            this.courses = JSON.parse(storedCourses);
+            this.renderCourses();
+        }
+    }    
 
     // Funktion för att ladda kursdata från JSON och spara till localStorage
     async loadAndSaveCourses(): Promise<void> {
@@ -67,17 +78,55 @@ class CourseManager {
             <td><a href=${course.syllabus}>${course.syllabus}</a></td>
         `;
         });
-    }};
+    }; 
 
+    // Funktion för att lägga till ny kurs 
+    private addCourse(course: CourseInfo): void { 
+        if (!this.isValidCourse(course)) { 
+            alert('Ogiltig kursinformation. Vänligen kontrolera dina inmatningar'); 
+        return; 
+        } 
+    
+    // Kontrollera om kursen redan finns 
+    if (this.courses.some((c) => c.code === course.code)) { 
+        alert('En kurs med denna kurskod finns redan'); 
+    return; 
+    } 
+    
+    this.courses.push(course); // Lägg till den nya kursen i arrayen 
+    
+    this.saveCoursesToLocalStorage(); // Spara den uppdaterade kurslistan till localStorage 
+    this.renderCourses(); // Uppdatera tabellen med den nya kursen 
+    } 
+    
+    // Funktion för att sätta upp eventlyssnare för formuläret 
+    public setupEventListener(): void { 
+        const form = document.querySelector('.courseform') as HTMLFormElement; 
+        form.addEventListener('submit', (event) => { 
+        event.preventDefault(); // Förhindra standardbeteende för formuläret 
+    
+    // Hämta värden från formuläret 
+    const code = (document.querySelector('.form_code') as HTMLInputElement).value.trim(); 
+    const coursename = (document.querySelector('.form_coursename') as HTMLInputElement).value.trim(); 
+    const progression = (document.querySelector('.form_progression') as HTMLSelectElement).value as 'A'|'B'|'C'; 
+    const syllabus = (document.querySelector('.form_syllabus') as HTMLInputElement).value.trim(); 
+
+    // Skapa nytt kursobjekt 
+    const newCourse: CourseInfo = {code, coursename, progression, syllabus}; 
+        this.addCourse(newCourse); // Lägg till den nya kursen 
+        form.reset(); // Återställ formuläret efter inmatninng 
+    }) 
+    }};
+     
 // Skapa en instans av CourseManager och ladda kurser vid sidladdning
 window.addEventListener("load", async () => {
     const courseManager = new CourseManager();
+    courseManager.setupEventListener();
 
     // Ladda kurserna från localstore
     const storedCourses = localStorage.getItem('courses');
     if (storedCourses) {
-        courseManager['courses'] = JSON.parse(storedCourses);
-        courseManager['renderCourses']();
+        courseManager.loadCoursesFromLocalStorage();
     } else {
     await courseManager.loadAndSaveCourses();
     }
