@@ -27,15 +27,15 @@
         </div>
         <div class="form">
             <form class="courseform">
-                <input type="text" class="form_code" placeholder="Kurskod" required />
-                <input type="text" class="form_coursename" placeholder="Kursnamn" required />
-                <select class="form_progression" required>
+                <input type="text" name="code" class="form_code" placeholder="Kurskod" required />
+                <input type="text" name="coursename" class="form_coursename" placeholder="Kursnamn" required />
+                <select name="progression" class="form_progression" required>
                   <option value="">Välj progression</option>
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
                 </select>
-                <input type="url" class="form_syllabus" placeholder="Länk till kursplan" required />
+                <input type="url" name="syllabus" class="form_syllabus" placeholder="Länk till kursplan" required />
                 <button type="submit">Lägg till kurs</button>
               </form>
         </div>
