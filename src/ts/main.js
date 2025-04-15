@@ -35,11 +35,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
-console.log("Test");
 var CourseManager = /** @class */ (function () {
     function CourseManager() {
         this.courses = [];
     }
+    CourseManager.prototype.saveCoursesToLocalStorage = function () {
+        localStorage.setItem('courses', JSON.stringify(this.courses));
+    };
+    CourseManager.prototype.loadCoursesFromLocalStorage = function () {
+        var storedCourses = localStorage.getItem('courses');
+        if (storedCourses) {
+            this.courses = JSON.parse(storedCourses);
+            this.renderCourses();
+        }
+    };
     // Funktion för att ladda kursdata från JSON och spara till localStorage
     CourseManager.prototype.loadAndSaveCourses = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -65,6 +74,7 @@ var CourseManager = /** @class */ (function () {
                             // Spara kurser till localStorage
                             localStorage.setItem('courses', JSON.stringify(this.courses));
                             console.log("Kursdata sparades till localStorage");
+                            this.renderCourses(); // Uppdatera tabellen med de nya kurserna
                         }
                         else {
                             console.error("Felaktig kursdata i JSON-filen");
@@ -83,7 +93,7 @@ var CourseManager = /** @class */ (function () {
     CourseManager.prototype.isValidCourse = function (course) {
         console.log(course); // Logga varje kursobjekt för att undersöka
         return typeof course.code === 'string' &&
-            typeof course.name === 'string' && // Kontrollera om det är 'name' eller 'coursename'
+            typeof course.coursename === 'string' && // Kontrollera om det är 'name' eller 'coursename'
             this.isValidProgression(course.progression) &&
             typeof course.syllabus === 'string';
     };
@@ -91,19 +101,68 @@ var CourseManager = /** @class */ (function () {
     CourseManager.prototype.isValidProgression = function (value) {
         return value === 'A' || value === 'B' || value === 'C';
     };
+    // Skriv ut kursinformation i tabellen
+    CourseManager.prototype.renderCourses = function () {
+        var courseTable = document.querySelector('.coursetable');
+        courseTable.innerHTML = '';
+        this.courses.forEach(function (course) {
+            var row = courseTable.insertRow();
+            row.innerHTML = "\n            <td>".concat(course.code, "</td>\n            <td>").concat(course.coursename, "</td>\n            <td>").concat(course.progression, "</td>\n            <td><a href=").concat(course.syllabus, ">").concat(course.syllabus, "</a></td>\n        ");
+        });
+    };
+    ;
+    // Funktion för att lägga till ny kurs 
+    CourseManager.prototype.addCourse = function (course) {
+        if (!this.isValidCourse(course)) {
+            alert('Ogiltig kursinformation. Vänligen kontrolera dina inmatningar');
+            return;
+        }
+        // Kontrollera om kursen redan finns 
+        if (this.courses.some(function (c) { return c.code === course.code; })) {
+            alert('En kurs med denna kurskod finns redan');
+            return;
+        }
+        this.courses.push(course); // Lägg till den nya kursen i arrayen 
+        this.saveCoursesToLocalStorage(); // Spara den uppdaterade kurslistan till localStorage 
+        this.renderCourses(); // Uppdatera tabellen med den nya kursen 
+    };
+    // Funktion för att sätta upp eventlyssnare för formuläret 
+    CourseManager.prototype.setupEventListener = function () {
+        var _this = this;
+        var form = document.querySelector('.courseform');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Förhindra standardbeteende för formuläret 
+            // Hämta värden från formuläret 
+            var code = document.querySelector('.form_code').value.trim();
+            var coursename = document.querySelector('.form_coursename').value.trim();
+            var progression = document.querySelector('.form_progression').value;
+            var syllabus = document.querySelector('.form_syllabus').value.trim();
+            // Skapa nytt kursobjekt 
+            var newCourse = { code: code, coursename: coursename, progression: progression, syllabus: syllabus };
+            _this.addCourse(newCourse); // Lägg till den nya kursen 
+            form.reset(); // Återställ formuläret efter inmatninng 
+        });
+    };
     return CourseManager;
 }());
+;
 // Skapa en instans av CourseManager och ladda kurser vid sidladdning
 window.addEventListener("load", function () { return __awaiter(_this, void 0, void 0, function () {
-    var courseManager;
+    var courseManager, storedCourses;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 courseManager = new CourseManager();
-                return [4 /*yield*/, courseManager.loadAndSaveCourses()];
-            case 1:
+                courseManager.setupEventListener();
+                storedCourses = localStorage.getItem('courses');
+                if (!storedCourses) return [3 /*break*/, 1];
+                courseManager.loadCoursesFromLocalStorage();
+                return [3 /*break*/, 3];
+            case 1: return [4 /*yield*/, courseManager.loadAndSaveCourses()];
+            case 2:
                 _a.sent();
-                return [2 /*return*/];
+                _a.label = 3;
+            case 3: return [2 /*return*/];
         }
     });
 }); });
